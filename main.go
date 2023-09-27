@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
 
 	"github.com/fatih/color"
 	"github.com/rosedblabs/rosedb/v2"
@@ -12,7 +13,11 @@ import (
 
 func main() {
 	opt := rosedb.DefaultOptions
-	opt.DirPath = "/tmp/rosedb/"
+	user, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+	opt.DirPath = "/home/" + user.Username + "/rosedb/"
 
 	key := "null"
 	value := "null"
