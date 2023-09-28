@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"runtime"
 
 	"github.com/fatih/color"
 	"github.com/rosedblabs/rosedb/v2"
@@ -17,7 +18,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	opt.DirPath = "/home/" + user.Username + "/rosedb/"
+
+	if runtime.GOOS == "windows" {
+		opt.DirPath = "C:\\Users\\" + user.Username + "\\rosedb\\"
+	}
+	if runtime.GOOS == "linux" {
+		opt.DirPath = "/home/" + user.Username + "/rosedb/"
+	}
 
 	key := "null"
 	value := "null"
