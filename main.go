@@ -1,15 +1,15 @@
 package main
 
-// "fmt"
-
 import (
 	"fmt"
 	"os"
 	"os/user"
 	"runtime"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/rosedblabs/rosedb/v2"
+	// tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
@@ -20,10 +20,10 @@ func main() {
 	}
 
 	if runtime.GOOS == "windows" {
-		opt.DirPath = "C:\\Users\\" + user.Username + "\\rosedb\\"
+		opt.DirPath = user.HomeDir + "\\rosedb\\"
 	}
 	if runtime.GOOS == "linux" {
-		opt.DirPath = "/home/" + user.Username + "/rosedb/"
+		opt.DirPath = user.HomeDir + "/rosedb/"
 	}
 
 	key := "null"
@@ -39,18 +39,22 @@ func main() {
 	}()
 
 	if len(os.Args) >= 3 {
-		if os.Args[1] == "Del" || os.Args[1] == "del" || os.Args[1] == "DEL" {
+		if strings.EqualFold(os.Args[1], "del") {
 			key = os.Args[2]
 			delete(db, key)
 		}
-		if os.Args[1] == "New" || os.Args[1] == "new" || os.Args[1] == "NEW" {
+		if strings.EqualFold(os.Args[1], "new") {
 			key = os.Args[2]
 			value = os.Args[3]
 			addValue(db, key, value)
 		}
 	} else if len(os.Args) >= 2 {
-		key = os.Args[1]
-		read(db, key)
+		if strings.EqualFold(os.Args[1], "list") {
+			list(db)
+		} else {
+			key = os.Args[1]
+			read(db, key)
+		}
 	} else {
 		color.Set(color.FgCyan)
 		fmt.Printf("To add a new value you need to run the command again, followed by the 'new' keyword and the key that will be used to call the value and the new value\n")
@@ -95,4 +99,14 @@ func delete(db *rosedb.DB, key string) {
 	color.Set(color.FgGreen)
 	fmt.Printf("Value deleted\n")
 	color.Unset()
+}
+
+func list(db *rosedb.DB) {
+	db.Ascend(func(k, v []byte) (bool, error) {
+		color.Set(color.FgGreen)
+		fmt.Printf("Key: %s, Value: %s\n", k, v)
+		color.Unset()
+		fmt.Println("------------------------------------")
+		return true, nil
+	})
 }
