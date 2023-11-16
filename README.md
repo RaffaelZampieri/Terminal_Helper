@@ -1,4 +1,4 @@
-# justRemindMe
+# Terminal Helper
 It's just a Go script to help me remember stuff.
 
 
