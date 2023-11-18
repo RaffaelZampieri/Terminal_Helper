@@ -35,14 +35,9 @@ func main() {
 		_ = db.Close()
 	}()
 
-	if len(os.Args) == 2 {
-		var key = os.Args[1]
-		read(db, key)
-	}
-
-	if len(os.Args) > 2 {
-		for i, arg := range os.Args {
-			if strings.Contains(arg, "--del") {
+	for i, arg := range os.Args {
+		if i >= 1 {
+			if strings.EqualFold(arg, "--del") {
 				fmt.Println(i + 1)
 				if i+1 < len(os.Args) {
 					delete(db, os.Args[i+1])
@@ -52,8 +47,8 @@ func main() {
 					color.Unset()
 					return
 				}
-			}
-			if strings.Contains(arg, "--new") {
+				break
+			} else if strings.EqualFold(arg, "--new") {
 				if i+2 < len(os.Args) {
 					addValue(db, os.Args[i+1], os.Args[i+2])
 				} else {
@@ -62,17 +57,21 @@ func main() {
 					color.Unset()
 					return
 				}
-			}
-			if strings.Contains(arg, "--list") {
+				break
+			} else if strings.EqualFold(arg, "--list") {
 				list(db)
-			}
-			if strings.Contains(arg, "--help") {
+				break
+			} else if strings.EqualFold(arg, "--help") {
 				color.Set(color.FgCyan)
 				fmt.Printf("To add a new value you need to run the command again, followed by the '--new' keyword and the key that will be used to call the value and the new value\n")
 				fmt.Printf("To delete a value you need to run the command again, followed by the '--del' keyword and the key that will be used to call the value\n")
 				fmt.Printf("To read a value you need to run the command again, followed by the key that will be used to call the value\n")
 				fmt.Printf("To list all values you need to run the command again, followed by the '--list' keyword\n")
 				color.Unset()
+				break
+			} else {
+				read(db, arg)
+				break
 			}
 		}
 	}
