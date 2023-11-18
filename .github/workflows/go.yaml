@@ -1,0 +1,42 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [windows, linux, darwin]
+        goarch: [amd64, 386]
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.20
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: go get -v -t -d ./...
+
+    - name: Build
+      run: |
+        GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o th-${{ matrix.goos }}-${{ matrix.goarch }}
+
+    - name: Test
+      run: go test -v .
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: th-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: ./th-${{ matrix.goos }}-${{ matrix.goarch }}
