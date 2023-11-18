@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         goos: [windows, linux, darwin]
-        goarch: [amd64, 386]
+        goarch: [amd64]
     steps:
 
     - name: Setup Node.js environment
