@@ -26,9 +26,6 @@ func main() {
 		opt.DirPath = user.HomeDir + "/rosedb/"
 	}
 
-	key := "null"
-	value := "null"
-
 	db, err := rosedb.Open(opt)
 	if err != nil {
 		panic(err)
@@ -38,29 +35,46 @@ func main() {
 		_ = db.Close()
 	}()
 
-	if len(os.Args) >= 3 {
-		if strings.EqualFold(os.Args[1], "del") {
-			key = os.Args[2]
-			delete(db, key)
+	if len(os.Args) == 2 {
+		var key = os.Args[1]
+		read(db, key)
+	}
+
+	if len(os.Args) > 2 {
+		for i, arg := range os.Args {
+			if strings.Contains(arg, "--del") {
+				fmt.Println(i + 1)
+				if i+1 < len(os.Args) {
+					delete(db, os.Args[i+1])
+				} else {
+					color.Set(color.FgRed)
+					fmt.Printf("You need to specify a key\n")
+					color.Unset()
+					return
+				}
+			}
+			if strings.Contains(arg, "--new") {
+				if i+2 < len(os.Args) {
+					addValue(db, os.Args[i+1], os.Args[i+2])
+				} else {
+					color.Set(color.FgRed)
+					fmt.Printf("You need to specify a key and a value\n")
+					color.Unset()
+					return
+				}
+			}
+			if strings.Contains(arg, "--list") {
+				list(db)
+			}
+			if strings.Contains(arg, "--help") {
+				color.Set(color.FgCyan)
+				fmt.Printf("To add a new value you need to run the command again, followed by the '--new' keyword and the key that will be used to call the value and the new value\n")
+				fmt.Printf("To delete a value you need to run the command again, followed by the '--del' keyword and the key that will be used to call the value\n")
+				fmt.Printf("To read a value you need to run the command again, followed by the key that will be used to call the value\n")
+				fmt.Printf("To list all values you need to run the command again, followed by the '--list' keyword\n")
+				color.Unset()
+			}
 		}
-		if strings.EqualFold(os.Args[1], "new") {
-			key = os.Args[2]
-			value = os.Args[3]
-			addValue(db, key, value)
-		}
-	} else if len(os.Args) >= 2 {
-		if strings.EqualFold(os.Args[1], "list") {
-			list(db)
-		} else {
-			key = os.Args[1]
-			read(db, key)
-		}
-	} else {
-		color.Set(color.FgCyan)
-		fmt.Printf("To add a new value you need to run the command again, followed by the 'new' keyword and the key that will be used to call the value and the new value\n")
-		fmt.Printf("To delete a value you need to run the command again, followed by the 'del' keyword and the key that will be used to call the value\n")
-		fmt.Printf("To read a value you need to run the command again, followed by the key that will be used to call the value\n")
-		color.Unset()
 	}
 
 }
@@ -102,11 +116,12 @@ func delete(db *rosedb.DB, key string) {
 }
 
 func list(db *rosedb.DB) {
+	i := 1
 	db.Ascend(func(k, v []byte) (bool, error) {
 		color.Set(color.FgGreen)
-		fmt.Printf("Key: %s, Value: %s\n", k, v)
+		fmt.Printf("%d - Key: %s, Value: %s\n", i, k, v)
 		color.Unset()
-		fmt.Println("------------------------------------")
+		i++
 		return true, nil
 	})
 }
