@@ -76,7 +76,6 @@ func main() {
 			}
 		}
 	}
-
 }
 
 func addValue(db *rosedb.DB, key string, value string) {
