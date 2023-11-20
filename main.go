@@ -38,7 +38,6 @@ func main() {
 	for i, arg := range os.Args {
 		if i >= 1 {
 			if strings.EqualFold(arg, "--del") {
-				fmt.Println(i + 1)
 				if i+1 < len(os.Args) {
 					delete(db, os.Args[i+1])
 				} else {
